@@ -146,7 +146,7 @@ function run_procfile() {
 
         #increase port number and index for color
         (( index ++ ))
-        if ( echo  "${command}"|grep -qe 'PORT' ); then
+        if ( echo  "${command}"|grep -qe '\$PORT' ); then
             (( PORT ++ ))
             export PORT="${PORT}"
         fi
