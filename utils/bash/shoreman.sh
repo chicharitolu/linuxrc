@@ -1,6 +1,8 @@
 #!/bin/bash
 
 set -o pipefail
+set -e
+set -u
 
 #store all pids of child processes
 pids=""
@@ -115,7 +117,9 @@ function load_env_file() {
     
     export PORT=${PORT:-8080}
     if [[  -f "$evn_file" ]]; then
-      export $(grep "^\s\?\w\+=\w\+\s\?$" $evn_file|xargs)
+        while read line; do
+            eval export "${line}"
+        done < <( grep "^\s\?\w\+=\w\+\s\?$" "${evn_file}")
     fi
 }
 
@@ -146,7 +150,7 @@ function run_procfile() {
 
         #increase port number and index for color
         (( index ++ ))
-        if ( echo  "${command}"|grep -qe '\$PORT' ); then
+        if ( echo  "${command}"|grep -qe 'PORT' ); then
             (( PORT ++ ))
             export PORT="${PORT}"
         fi
@@ -154,11 +158,13 @@ function run_procfile() {
 }
 
 function main() {
-
+    local is_verify
+    local env_file
+    local proc_file
     while getopts 'ce:f:h' opt; do
         case "${opt}" in
             c)
-                local is_verify='yes'
+                local is_verify='true'
                 ;;
             e)
                 local env_file="$OPTARG"
@@ -173,7 +179,7 @@ function main() {
         esac
   done
   
-  if [[ "${is_verify}" = 'yes' ]]; then
+  if [[  "${is_verify}" = "true" ]]; then
       verify "${env_file}" "${proc_file}"
   fi
 
