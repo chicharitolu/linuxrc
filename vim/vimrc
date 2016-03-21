@@ -13,5 +13,5 @@ set tabstop=2
 set ignorecase
 set fileencodings=utf-8,gbk
 set hls
-set foldmethod=syntax
+set foldmethod=manual
 "}}
